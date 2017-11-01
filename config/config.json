@@ -1,0 +1,12 @@
+// {
+//     "uname":"test",
+//     "pwd":"test"
+// }
+{
+    "connectionLimit" : 10,
+    "host"     : "localhost",
+    "user"     : "root",
+    "password" : "abc@123",
+    "database" : "haudb"
+
+}

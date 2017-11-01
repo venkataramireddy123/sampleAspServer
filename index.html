@@ -1,0 +1,46 @@
+<html>
+
+<head>
+    <title>socket.io.example</title>
+    <style>
+        #chat {
+            heaight: 500px;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+        crossorigin="anonymous"></script>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body>
+    <div id="chat"></div>
+    <form id="send-message">
+        <input type="text" size="35" id="message">
+        <input type="submit">
+    </form>
+    <script>
+        jQuery(function ($) {
+            debugger;
+            var socket = io.connect("http://35.154.172.105:3000");
+            var $messageFrom = $('#send-message');
+            var $messageBox = $('#message');
+            var $chat = $('#chat');
+
+            $messageFrom.submit(function (e) {
+                debugger;
+                e.preventDefault();
+                socket.emit("sendMessage", $messageBox.val());
+                socket.emit("sendMessage1", $messageBox.val());
+                $messageBox.val('');
+            });
+            socket.on('new message', function (data) {
+                $chat.append(data + "<br/>");
+            })
+            socket.on('new message1', function (data) {
+                $chat.append("Tube Light is :" + (data == true ? "on" : "off") + "<br/>");
+            })
+        });
+    </script>
+</body>
+
+</html>
