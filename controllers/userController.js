@@ -289,7 +289,7 @@ module.exports = function (app, pool) {
             var strStringRes = commonMethods.PopulatePropertiesResultsForSocket(obj, "USER_");
             console.log(strString);
             if (req.body["USER_ID"]) {
-                connection.query("SELECT * FROM hau_users where (USER_ISDELETED is null or USER_ISDELETED =0) and lower(USER_USERNAME) = '" + req.body.USER_USERNAME.toLowerCase() + "' AND USER_ID	<>" + req.body.USER_ID + " and USER_ENTT_ID = " + parseInt(req.body.USER_ENTT_ID) + ";", function (error1, results1, fields1) {
+                connection.query("select * from hau_users where (USER_ISDELETED is null or USER_ISDELETED =0) and lower(USER_USERNAME) = '" + req.body.USER_USERNAME.toLowerCase() + "' AND USER_ID	<>" + req.body.USER_ID + " and USER_ENTT_ID = " + parseInt(req.body.USER_ENTT_ID) + ";", function (error1, results1, fields1) {
                     if (error1) {
                         res.send({
                             'ResultCode': 202,
@@ -318,7 +318,7 @@ module.exports = function (app, pool) {
                                 obj.boards.forEach((item, index, array) => {
 
                                     if (!item.UWBA_USER_ID)
-                                        item.UWBA_USER_ID = obj.USER_MODIFIEDBY;
+                                        item.UWBA_USER_ID = req.body["USER_ID"];
                                     if (item.UWBA_ID) {
                                         var strString = commonMethods.PopulatePropertiesForSocket(item, "UWBA_");
                                         var strStringRes = commonMethods.PopulatePropertiesResultsForSocket(item, "UWBA_");
@@ -393,6 +393,7 @@ module.exports = function (app, pool) {
                 });
             } else {
                 req.body.USER_CREATEDDATE = commonMethods.GetDateToString(req.body.USER_CREATEDDATE);
+                req.body.USER_MODIFIEDDATE = commonMethods.GetDateToString(req.body.USER_MODIFIEDDATE);
                 connection.query("SELECT * FROM hau_users where (USER_ISDELETED is null or USER_ISDELETED =0) and lower(USER_USERNAME) = '" + req.body.USER_USERNAME.toLowerCase() + "' and USER_ENTT_ID = " + parseInt(req.body.USER_ENTT_ID) + ";", function (error1, results1, fields1) {
                     if (error1) {
                         res.send({
@@ -426,12 +427,13 @@ module.exports = function (app, pool) {
                             //     'details': results.insertId,
                             //     'ResultText': ""
                             // });
+                            var userid=results.insertId;
                             if (obj.boards) {
                                 var itemsProcessed = 0;
                                 obj.boards.forEach((item, index, array) => {
 
                                     if (!item.UWBA_USER_ID)
-                                        item.UWBA_USER_ID = obj.USER_MODIFIEDBY;
+                                        item.UWBA_USER_ID = userid;
                                     if (item.UWBA_ID) {
                                         var strString = commonMethods.PopulatePropertiesForSocket(item, "UWBA_");
                                         var strStringRes = commonMethods.PopulatePropertiesResultsForSocket(item, "UWBA_");
