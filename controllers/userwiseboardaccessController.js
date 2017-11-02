@@ -1,6 +1,8 @@
 var commonMethods = require('./commonMethods')();
 module.exports = function (app, pool) {
+
     app.post("/api/userwiseboardaccess/GetAll", function (req, res) {
+        
         pool.getConnection(function (err, connection) {
             // connected! (unless `err` is set)
             if (err) {
@@ -11,8 +13,17 @@ module.exports = function (app, pool) {
                 });
                 return;
             };
+            var str ="";
+            if(req.body.USER_ID == -1)
+            {
+                str = 'SELECT * FROM hau_userwiseboardaccess ub inner join hau_boards b on b.BORD_ID = ub.UWBA_BORD_ID inner join hau_rooms r on r.ROOM_ID = b.BORD_ROOM_ID where UWBA_USER_ID = ' + req.body.USER_ID + '  and r.ROOM_ISACTIVE = 1 and (r.ROOM_ISDELETED is null or r.ROOM_ISDELETED = 0) and (b.BORD_ISDELETED is null or b.BORD_ISDELETED = 0) order by r.ROOM_ID, b.BORD_ID;SELECT b.*,r.* FROM hau_boards b inner join hau_rooms r on r.ROOM_ID = b.BORD_ROOM_ID inner join hau_users u on u.USER_ENTT_ID = r.ROOM_ENTT_ID where r.ROOM_ISACTIVE = 1 and (r.ROOM_ISDELETED is null or r.ROOM_ISDELETED = 0) and (b.BORD_ISDELETED is null or b.BORD_ISDELETED = 0) and r.ROOM_ENTT_ID = ' + req.body.ENTT_ID + ';'
 
-            connection.query('SELECT * FROM hau_userwiseboardaccess ub inner join hau_boards b on b.BORD_ID = ub.UWBA_BORD_ID inner join hau_rooms r on r.ROOM_ID = b.BORD_ROOM_ID where UWBA_USER_ID = ' + req.body.USER_ID + '  and r.ROOM_ISACTIVE = 1 and (r.ROOM_ISDELETED is null or r.ROOM_ISDELETED = 0) and (b.BORD_ISDELETED is null or b.BORD_ISDELETED = 0) order by r.ROOM_ID, b.BORD_ID;SELECT b.*,r.* FROM hau_boards b inner join hau_rooms r on r.ROOM_ID = b.BORD_ROOM_ID inner join hau_users u on u.USER_ENTT_ID = r.ROOM_ENTT_ID where r.ROOM_ISACTIVE = 1 and (r.ROOM_ISDELETED is null or r.ROOM_ISDELETED = 0) and (b.BORD_ISDELETED is null or b.BORD_ISDELETED = 0) and u.USER_ID = ' + req.body.USER_ID + ';', function (error, results, fields) {
+            }
+            else 
+            {
+                str= 'SELECT * FROM hau_userwiseboardaccess ub inner join hau_boards b on b.BORD_ID = ub.UWBA_BORD_ID inner join hau_rooms r on r.ROOM_ID = b.BORD_ROOM_ID where UWBA_USER_ID = ' + req.body.USER_ID + '  and r.ROOM_ISACTIVE = 1 and (r.ROOM_ISDELETED is null or r.ROOM_ISDELETED = 0) and (b.BORD_ISDELETED is null or b.BORD_ISDELETED = 0) order by r.ROOM_ID, b.BORD_ID;SELECT b.*,r.* FROM hau_boards b inner join hau_rooms r on r.ROOM_ID = b.BORD_ROOM_ID inner join hau_users u on u.USER_ENTT_ID = r.ROOM_ENTT_ID where r.ROOM_ISACTIVE = 1 and (r.ROOM_ISDELETED is null or r.ROOM_ISDELETED = 0) and (b.BORD_ISDELETED is null or b.BORD_ISDELETED = 0) and u.USER_ID = ' + req.body.USER_ID + ';'
+            }
+            connection.query(str, function (error, results, fields) {
                 // And done with the connection.
 
                 // Handle error after the release.

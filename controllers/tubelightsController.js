@@ -305,6 +305,8 @@ module.exports = function (app, pool) {
                     });
                 } else {
                     req.body.TUBE_CREATEDDATE = commonMethods.GetDateToString(req.body.TUBE_CREATEDDATE);
+
+
                     connection.query("SELECT * FROM hau_tubelights where (TUBE_ISDELETED  is null or TUBE_ISDELETED = 0) and TUBE_PIN = " + req.body.TUBE_PIN + " and TUBE_BORD_ID =" + req.body.TUBE_BORD_ID + " ;", function (error1, results1, fields1) {
                         if (error1) {
                             res.send({
@@ -315,6 +317,7 @@ module.exports = function (app, pool) {
                             return;
                         };
                         if (results1.length == 0) {
+
                             connection.query('INSERT INTO hau_appliances SET ?', { "APPL_TYPE": 2, "APPL_BORD_ID": req.body.TUBE_BORD_ID, "APPL_CREATEDBY": req.body.TUBE_CREATEDBY, "APPL_CREATEDDATE": req.body.TUBE_CREATEDDATE }, function (_error, _results, _fields) {
 
 
@@ -328,7 +331,7 @@ module.exports = function (app, pool) {
                                     return;
                                 };
                                 req.body.TUBE_APPL_ID = _results.insertId;
-
+                                // var dataFortube = commonMethods.PopulatePropertiesForSocketForHistory(req.body, 'TUBE_', 'TUBE_');
                                 connection.query('INSERT INTO hau_tubelights SET ?', req.body, function (error, results, fields) {
                                     // And done with the connection.
                                     connection.release();

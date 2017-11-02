@@ -334,7 +334,7 @@ module.exports = function (app, pool) {
                                     connection.release();
 
                                     // Handle error after the release.
-                                    if (err) {
+                                    if (error) {
                                         res.send({
                                             'ResultCode': 202,
                                             'details': undefined,

@@ -317,6 +317,8 @@ module.exports = function (app, pool) {
                                 var itemsProcessed = 0;
                                 obj.boards.forEach((item, index, array) => {
 
+                                    if (!item.UWBA_USER_ID)
+                                        item.UWBA_USER_ID = obj.USER_MODIFIEDBY;
                                     if (item.UWBA_ID) {
                                         var strString = commonMethods.PopulatePropertiesForSocket(item, "UWBA_");
                                         var strStringRes = commonMethods.PopulatePropertiesResultsForSocket(item, "UWBA_");
@@ -335,6 +337,7 @@ module.exports = function (app, pool) {
 
                                         });
                                     } else {
+
                                         var dataForHistory = commonMethods.PopulatePropertiesForUserAccess(item, 'UWBA_', 'UWBA_');
 
                                         connection.query('INSERT INTO hau_userwiseboardaccess SET ?', dataForHistory, function (error, results, fields) {
@@ -400,8 +403,10 @@ module.exports = function (app, pool) {
                         return;
                     };
                     if (results1.length == 0) {
-
-                        connection.query('INSERT INTO hau_users SET ?', req.body, function (error, results, fields) {
+                        var obj = req.body;
+                        var withOutBoards = obj;
+                        delete withOutBoards.boards;
+                        connection.query('INSERT INTO hau_users SET ?', withOutBoards, function (error, results, fields) {
                             // And done with the connection.
                             connection.release();
 
@@ -416,11 +421,73 @@ module.exports = function (app, pool) {
                             };
 
                             // Don't use the connection here, it has been returned to the pool.
-                            res.send({
-                                'ResultCode': 200,
-                                'details': results.insertId,
-                                'ResultText': ""
-                            });
+                            // res.send({
+                            //     'ResultCode': 200,
+                            //     'details': results.insertId,
+                            //     'ResultText': ""
+                            // });
+                            if (obj.boards) {
+                                var itemsProcessed = 0;
+                                obj.boards.forEach((item, index, array) => {
+
+                                    if (!item.UWBA_USER_ID)
+                                        item.UWBA_USER_ID = obj.USER_MODIFIEDBY;
+                                    if (item.UWBA_ID) {
+                                        var strString = commonMethods.PopulatePropertiesForSocket(item, "UWBA_");
+                                        var strStringRes = commonMethods.PopulatePropertiesResultsForSocket(item, "UWBA_");
+                                        console.log(strString);
+                                        console.log(strStringRes);
+
+                                        connection.query('UPDATE hau_userwiseboardaccess SET ' + strString, strStringRes, function (error, results, fields) {
+                                            // And done with the connection.
+
+                                            // Handle error after the release.
+                                            if (error) {
+                                                debugger;
+                                            };
+
+                                            // Don't use the connection here, it has been returned to the pool.
+
+                                        });
+                                    } else {
+                                        var dataForHistory = commonMethods.PopulatePropertiesForUserAccess(item, 'UWBA_', 'UWBA_');
+
+                                        connection.query('INSERT INTO hau_userwiseboardaccess SET ?', dataForHistory, function (error, results, fields) {
+                                            // And done with the connection.
+
+                                            // Handle error after the release.
+                                            if (error) {
+                                                debugger;
+                                                //res.send({
+                                                //    'ResultCode': 202,
+                                                //    'details': undefined,
+                                                //    'ResultText': "No Network found!"
+                                                //});
+                                                //return;
+                                            };
+
+                                            // Don't use the connection here, it has been returned to the pool.
+
+                                        });
+                                    }
+                                    itemsProcessed++;
+                                    if (itemsProcessed === array.length) {
+                                        res.send({
+                                            'ResultCode': 200,
+                                            'details': results.changedRows,
+                                            'ResultText': ""
+                                        });
+                                    }
+
+                                });
+                            }
+                            else {
+                                res.send({
+                                    'ResultCode': 200,
+                                    'details': results.insertId,
+                                    'ResultText': ""
+                                });
+                            }
                         });
                     } else {
                         connection.release();
