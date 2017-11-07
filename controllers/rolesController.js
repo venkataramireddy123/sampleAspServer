@@ -39,6 +39,7 @@ module.exports = function (app, pool) {
 
         });
     });
+    
     app.get("/api/roles/GetAllByAdmin", function (req, res) {
         commonMethods.parseToken(pool, req, res, function () {
             pool.getConnection(function (err, connection) {

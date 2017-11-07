@@ -31,6 +31,33 @@ var userSocketController = require('./userSocketController');
 var userwiseboardaccessSocketController = require('./userwiseboardaccessSocketController');
 //var url = require('url');
 module.exports = function (io, pool) {
+    io.use(function (socket, next) {
+        debugger;
+        console.log(socket.handshake.query.token);
+        if (socket.handshake.query.token) {
+            var re = /;;;/gi;
+            var str = socket.handshake.query.token;
+            var newstr = str.replace(re, "=");
+
+            var token = newstr;
+            console.log(token);
+            socket.token = token;
+
+            var decToken = commonMethods.decrypt(token);
+            commonMethods.parseTokenForSockets(pool, socket, token, decToken, function (error) {
+                console.log(error);
+                // debugger;
+                
+                socket.emit("authenticationFailure", {});
+            }, function () {
+                // debugger;
+                socket.isdevice = false;
+                socket.isAuthenticated = true;
+                // socket.emit('Authenticated', {});
+                next();
+            });
+        }
+    });
     // io.use(function (socket, next) {
     //     // debugger;
     //     // var url_parts = url.parse(request.url, true);
@@ -159,6 +186,7 @@ module.exports = function (io, pool) {
                 commonMethods.parseTokenForSockets(pool, socket, token, decToken, function (error) {
                     console.log(error);
                     // debugger;
+                    
                     socket.emit("authenticationFailure", {});
                 }, function () {
                     // debugger;
